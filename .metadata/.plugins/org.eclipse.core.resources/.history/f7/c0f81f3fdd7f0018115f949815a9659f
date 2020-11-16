@@ -1,0 +1,14 @@
+package com.aaron.main;
+
+public class Page {
+
+	public String url;
+	public int id;
+	
+	public Page(String url) {
+		this.url = url;
+		id = Display.pageNum; //getting it's own page number
+		Display.url = url;
+	}
+
+}

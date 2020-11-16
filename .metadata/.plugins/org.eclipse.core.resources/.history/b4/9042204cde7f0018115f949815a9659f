@@ -1,0 +1,117 @@
+package com.aaron.main;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+
+public class Display {
+	
+	ArrayList<Page> pages = new ArrayList<Page>();
+		
+	public static int pageNum = 0;
+	JFrame frame;
+	JEditorPane jEditorPane;
+	JScrollPane scrollPane;
+	Dimension size = new Dimension(800,600);
+	JTextField searchBar;
+	String url = "http://www.google.ca/";
+	Page firstPage;
+
+	public Display() {
+		
+		
+		searchBar = new JTextField();
+		searchBar.setText(url);
+		//when enter is pressed
+		searchBar.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getID() == 1001) { //enter is hit
+				
+					url = searchBar.getText();
+					
+					loadPage();
+					
+					jEditorPane.repaint();
+					
+				}
+			}
+			
+		});
+
+		jEditorPane = new JEditorPane();
+		jEditorPane.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
+		jEditorPane.setEditable(false);   
+
+		firstPage = new Page(url);
+		//makes first page
+		pages.add(firstPage);
+		loadPage(); //also makes another page that is a copy of current page
+		
+		jEditorPane.addHyperlinkListener(new HyperlinkListener() {
+		    public void hyperlinkUpdate(HyperlinkEvent e) {
+		        if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+		           //clicked on hyperlink
+		        	url = e.getURL().toString();
+		        	searchBar.setText(url);
+		        	loadPage();
+		        }
+		    }
+		});
+
+		JScrollPane scrollPane = new JScrollPane(jEditorPane);     
+		frame = new JFrame("Test HTML");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(searchBar, BorderLayout.NORTH);
+		frame.getContentPane().add(scrollPane);
+		frame.pack();
+		frame.setPreferredSize(size);
+		frame.setMinimumSize(size);
+		frame.setVisible(true);
+	
+	}
+	
+	public Page findLatestPage() {
+		Page latestPage = firstPage;
+		
+		for (Page page : pages) {
+			if (page.id > latestPage.id) {
+				latestPage = page;
+			}
+		}
+		
+		return latestPage;
+		
+	}
+	
+	public void loadPage() {
+		
+		
+		
+		try {
+			  jEditorPane.setPage(url);
+			  pageNum++;
+			  pages.add(new Page(url));
+			}catch (IOException e) {
+				JOptionPane.showMessageDialog(frame.getContentPane(), "Sorry, the page you are searching for doesn't exist.", "Error", JOptionPane.ERROR_MESSAGE);
+			} 
+	}
+
+	public static void main(String[] args) {
+
+		new Display();
+	}
+
+}
